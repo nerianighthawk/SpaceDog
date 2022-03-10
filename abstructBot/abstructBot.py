@@ -2,8 +2,8 @@ import os
 import discord
 from dotenv import load_dotenv
 
-from message_service import abst_message
-from db_service import init_setting, add_member
+from message_service import abst_message, member_contents_str
+from db_service import init_setting, add_member, delete_contents
 
 # .env ファイルをロードして環境変数へ反映
 load_dotenv()
@@ -22,23 +22,29 @@ async def on_message(message: discord.Message):
     # メッセージ送信者がBotだった場合は無視する
     if message.author.bot:
         return
-    if word_list[0] == '/spacedog':
-        try:
-            if word_list[1] == 'abst':
-                message_id = int(word_list[2])
-                msg = await abst_message(message.channel, message_id)
+    if word_list[0] == '/sd':
+        if word_list[1] == 'abst':
+            # try:
+                channel_id = int(word_list[2])
+                message_id = int(word_list[3])
+                msg = await abst_message(message.guild, channel_id, message_id)
                 await message.channel.send(msg)
-            elif word_list[1] == 'add':
-                user_id = int(word_list[2])
-                content_list = word_list[3:]
-                add_member(content_list, user_id)
-                await message.channel.send('登録しました。')
-            else:
-                await message.channel.send('コマンドとして許可されているのは "abst" と "add" のみです。')
-        except:
-            await message.channel.send('なんか知らんけど無理だった')
-        finally:
-            await message.delete()
+                await message.delete()
+            # except:
+                # await message.channel.send('なんか知らんけど無理だった')
+            # finally:
+                # await message.delete()
+        elif word_list[1] == 'add':
+            user_id = int(word_list[2])
+            content_list = word_list[3:]
+            add_member(content_list, user_id)
+            await message.channel.send(f'{user_id}を登録しました。')
+        elif word_list[1] == 'del':
+            user_id = int(word_list[2])
+            delete_contents(user_id)
+            await message.channel.send(f'{user_id}を削除しました。')
+        else:
+            await message.channel.send('コマンドとして許可されているのは "abst" と "add" のみです。')
     if word_list[0] == '/setting_db':
         init_setting()
 
