@@ -3,12 +3,13 @@ from functools import reduce
 from db_service import read_contents
 
 
-async def abst_message(ctx, message_id: int):
+async def abst_message(guild, channel_id, message_id: int):
+    ctx = guild.get_channel(channel_id)
     msg = await ctx.fetch_message(message_id)
-    guild = msg.guild
     users = await msg.reactions[0].users().flatten()
     if len(users) > 1:
-        mention_str = reduce(concat_mention, users, '')
+        mention_str_list = map(lambda u: u.mention, users)
+        mention_str = reduce(concat_mention, mention_str_list, '')
     else:
         mention_str = users[0].mention
     template1 = '明日の開催概要です！'
@@ -18,7 +19,7 @@ async def abst_message(ctx, message_id: int):
 
 
 def concat_mention(user, pre_str):
-    return f'{pre_str} {user.mention}'
+    return f'{pre_str} {user}'
 
 
 def datetime_map_part(content: str):

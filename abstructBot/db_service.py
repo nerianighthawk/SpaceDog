@@ -29,6 +29,16 @@ def read_contents(user_id):
     return contents_list
 
 
+def delete_contents(user_id):
+    conn = sqlite3.connect(db_name)
+    cur = conn.cursor()
+
+    cur.execute(f'DELETE FROM contents WHERE discord_id={user_id}')
+
+    cur.close()
+    conn.close()
+
+
 def init_setting():
     conn = sqlite3.connect(db_name)
     
