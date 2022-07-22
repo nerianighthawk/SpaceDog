@@ -2,7 +2,8 @@ import os
 import discord
 from dotenv import load_dotenv
 
-from message_service import abst_message, member_contents_str
+from message_service import abst_message
+from css_service import create_css
 from db_service import init_setting, add_member, delete_contents
 
 # .env ファイルをロードして環境変数へ反映
@@ -34,6 +35,12 @@ async def on_message(message: discord.Message):
                 # await message.channel.send('なんか知らんけど無理だった')
             # finally:
                 # await message.delete()
+        elif word_list[1] == 'css':
+            message_id = int(word_list[2])
+            css_msg = await create_css(message.channel, message_id)
+            await message.channel.send(css_msg[0])
+            await message.channel.send(css_msg[1])
+            await message.delete()
         elif word_list[1] == 'add':
             user_id = int(word_list[2])
             content_list = word_list[3:]
@@ -44,7 +51,7 @@ async def on_message(message: discord.Message):
             delete_contents(user_id)
             await message.channel.send(f'{user_id}を削除しました。')
         else:
-            await message.channel.send('コマンドとして許可されているのは "abst" と "add" のみです。')
+            await message.channel.send('コマンドとして許可されているのは abst, css, add, del のみです。')
     if word_list[0] == '/setting_db':
         init_setting()
 
